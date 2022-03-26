@@ -6,18 +6,16 @@ import { Component, createRef } from "react";
 class MyComponent extends Component {
   editorRef = createRef();
 
-  constructor() {
-    super();
-    this.state = {
-      content: "",
-    };
-  }
-
   onClick = () => {
-    this.setState({
-      content: this.editorRef.current.getInstance().getHtml(),
+    fetch("http://localhost:8080/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: this.editorRef.current.getInstance().getMarkdown(),
+      }),
     });
-    console.log(this.content);
   };
 
   uploadImage = async (blob) => {
@@ -32,8 +30,8 @@ class MyComponent extends Component {
       .then((response) => {
         return response.text();
       })
-      .then((response) => {
-        console.log(response);
+      .catch((err) => {
+        console.log(err);
       });
   };
   render() {
@@ -49,14 +47,12 @@ class MyComponent extends Component {
           hooks={{
             addImageBlobHook: (blob, callback) => {
               const img_url = this.uploadImage(blob);
-              console.log("2" + img_url);
+              console.log(img_url);
               callback(img_url, "image");
             },
           }}
         />
-        <form action="/submit" method="post">
-          <button onClick={this.onClick}>저장</button>
-        </form>
+        <button onClick={this.onClick}>저장</button>
       </div>
     );
   }
